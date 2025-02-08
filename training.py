@@ -1,15 +1,30 @@
 import torch
-from transformers import AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from torch.utils._python_dispatch import TorchDispatchMode
+from torch.profiler import profile, ProfilerActivity
+import os
+from huggingface_hub import login
 
-# 1. Select and load the pre-trained ~1B parameter model (Pythia-1B) and use MPS device
-model_name = "meta-llama/Llama-3.2-1B"  # 1-billion-parameter Transformer model&#8203;:contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}
+# Retrieve token from environment variable
+hf_token = os.getenv("HF_TOKEN")
+
+# Authenticate
+if hf_token:
+    login(hf_token)
+    print("Successfully logged into Hugging Face!")
+else:
+    print("HF_TOKEN environment variable not set.")
+
+# Use Metal backend for MacBook Air with M1/M2 chips
 device = torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
-model = AutoModelForCausalLM.from_pretrained(model_name)
-model.to(device)
-model.train()  # set model to training mode
 
-# 2. Generate synthetic tokenized inputs (random IDs in the model's vocab range)
+# Load real LLaMA model from Hugging Face (replace as needed)
+model_name = "meta-llama/Llama-3.2-1B"  # Example for a 1B model
+print("Loading model...")
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16).to(device)
+model.train()  # Set model to training mode
+
+# Generate synthetic tokenized inputs (random IDs in the model's vocab range)
 batch_size = 1
 seq_length = 32
 vocab_size = model.config.vocab_size
@@ -17,7 +32,10 @@ input_ids = torch.randint(0, vocab_size, (batch_size, seq_length), device=device
 # Use the same tensor as labels so the model computes a loss for this dummy input
 labels = input_ids.clone()
 
-# 3. Define a custom TorchDispatchMode to count operations
+# Optimizer setup
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
+
+# Custom TorchDispatchMode to count operations
 class OpCountingMode(TorchDispatchMode):
     def __init__(self):
         super().__init__()
@@ -33,15 +51,18 @@ class OpCountingMode(TorchDispatchMode):
             kwargs = {}
         return func(*args, **kwargs)
 
-# 4. Run a single forward and backward pass with the OpCountingMode enabled
+# Profile forward and backward passes with operation counts
 counter = OpCountingMode()
 with counter:
-    outputs = model(input_ids, labels=labels)   # forward pass (computes loss)
+    outputs = model(input_ids=input_ids, labels=labels)  # Forward pass (computes loss)
     loss = outputs.loss
-    loss.backward()                            # backward pass (computes gradients)
+
+    optimizer.zero_grad()  # Clear previous gradients
+    loss.backward()  # Backward pass (computes gradients)
+    optimizer.step()  # Update model parameters
 
 print(f"count of ops: {len(counter.counts)}")
 
-# 5. After exiting the context, print the number of times each operation was used
+# After exiting the context, print the number of times each operation was used
 for op, count in counter.counts.items():
     print(f"{op}: {count}")
