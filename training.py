@@ -1,9 +1,11 @@
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from torch.utils._python_dispatch import TorchDispatchMode
-from torch.profiler import profile, ProfilerActivity
+from transformers import AutoModelForCausalLM
 import os
 from huggingface_hub import login
+import time 
+from sim import LatencySimulatorMode, patch_adamw_optimizer
+
+patch_adamw_optimizer()
 
 # Retrieve token from environment variable
 hf_token = os.getenv("HF_TOKEN")
@@ -15,54 +17,63 @@ if hf_token:
 else:
     print("HF_TOKEN environment variable not set.")
 
-# Use Metal backend for MacBook Air with M1/M2 chips
+# Use Metal backend for Apple Silicon
 device = torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
+print(f"Using device: {device}")
 
-# Load real LLaMA model from Hugging Face (replace as needed)
-model_name = "meta-llama/Llama-3.2-1B"  # Example for a 1B model
+# Load a pre-trained model.
+# (Replace model_name with an accessible model; here we assume a 1B model as an example)
+model_name = "meta-llama/Llama-3.2-1B"  # Example; adjust if needed.
 print("Loading model...")
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16).to(device)
-model.train()  # Set model to training mode
+model.train()  # set model to training mode
 
-# Generate synthetic tokenized inputs (random IDs in the model's vocab range)
+# Generate synthetic tokenized inputs.
 batch_size = 1
 seq_length = 32
 vocab_size = model.config.vocab_size
 input_ids = torch.randint(0, vocab_size, (batch_size, seq_length), device=device)
-# Use the same tensor as labels so the model computes a loss for this dummy input
-labels = input_ids.clone()
+labels = input_ids.clone()  # use same tensor as labels
 
-# Optimizer setup
+# Optimizer setup.
 optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
 
-# Custom TorchDispatchMode to count operations
-class OpCountingMode(TorchDispatchMode):
-    def __init__(self):
-        super().__init__()
-        self.counts = {}  # dictionary to store counts of ops
+# For example, simulate on the MPS device if available.
+sim_device = torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
 
-    def __torch_dispatch__(self, func, types, args=(), kwargs=None):
-        # Get operation name (including module to avoid name collisions)
-        op_name = f"{func.__module__}.{func.__name__}"
-        # Increment count for this operation
-        self.counts[op_name] = self.counts.get(op_name, 0) + 1
-        # Execute the actual operation
-        if kwargs is None:
-            kwargs = {}
-        return func(*args, **kwargs)
+# Create an instance of LatencySimulatorMode from YAML.
+# (Ensure that "gpu_latency_profile.yaml" exists in the current directory.)
+sim_mode = LatencySimulatorMode.from_yaml("h100_profile.yaml", sim_device="cpu")
 
-# Profile forward and backward passes with operation counts
-counter = OpCountingMode()
-with counter:
-    outputs = model(input_ids=input_ids, labels=labels)  # Forward pass (computes loss)
+# Start time measurement for the overall training iteration.
+start_time = time.perf_counter()
+
+# Run one training iteration inside the simulator mode.
+with sim_mode:
+    outputs = model(input_ids=input_ids, labels=labels)  # forward pass (computes loss)
     loss = outputs.loss
+    optimizer.zero_grad()
+    loss.backward()  # backward pass (computes gradients)
+    optimizer.step()  # update parameters
 
-    optimizer.zero_grad()  # Clear previous gradients
-    loss.backward()  # Backward pass (computes gradients)
-    optimizer.step()  # Update model parameters
+end_time = time.perf_counter()
+real_time = end_time - start_time
 
-print(f"count of ops: {len(counter.counts)}")
+# Calculate simulated training speed (tokens processed per simulated second).
+total_tokens = batch_size * seq_length
+# Note: We use the total simulated delay accumulated by our simulator.
+simulated_time = sim_mode.total_delay
+tokens_per_sec = total_tokens / simulated_time if simulated_time > 0 else float('inf')
 
-# After exiting the context, print the number of times each operation was used
-for op, count in counter.counts.items():
-    print(f"{op}: {count}")
+##########################
+# Print Final Latencies  #
+##########################
+print("\n--- Final Latency Report ---")
+print(f"Total simulated delay: {simulated_time:.6f} sec")
+print(f"Real wall-clock time for training iteration: {real_time:.6f} sec")
+print(f"Tokens processed: {total_tokens}")
+print(f"Simulated training speed: {tokens_per_sec:.2f} tokens/sec")
+print("\nPer-op latency breakdown:")
+for op, delay in sim_mode.delay_breakdown.items():
+    print(f"{op}: {delay:.6f} sec")
+print("----------------------------")

@@ -1,0 +1,217 @@
+latency_profile:
+  torch._ops.aten.embedding.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten.arange.start:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten.unsqueeze.default:
+    size_latency:
+      1000: 6.800000e-09
+      1000000: 6.800000e-06
+  torch._ops.aten.slice.Tensor:
+    size_latency:
+      1000: 2.650000e-08
+      1000000: 2.650000e-05
+  torch._ops.aten.expand.default:
+    size_latency:
+      1000: 1.320000e-08
+      1000000: 1.320000e-05
+  torch._ops.aten._to_copy.default:
+    size_latency:
+      1000: 2.810000e-08
+      1000000: 2.810000e-05
+  torch._ops.aten.view.default:
+    size_latency:
+      1000: 3.100000e-08
+      1000000: 3.100000e-05
+  torch._ops.aten.bmm.default:
+    size_latency:
+      1000: 9.700000e-09
+      1000000: 9.700000e-06
+  torch._ops.aten._unsafe_view.default:
+    size_latency:
+      1000: 1.130000e-08
+      1000000: 1.130000e-05
+  torch._ops.aten.transpose.int:
+    size_latency:
+      1000: 2.250000e-08
+      1000000: 2.250000e-05
+  torch._ops.aten.cat.default:
+    size_latency:
+      1000: 3.300000e-09
+      1000000: 3.300000e-06
+  torch._ops.aten.cos.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten.sin.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten.mul.Tensor:
+    size_latency:
+      1000: 4.420000e-08
+      1000000: 4.420000e-05
+  torch._ops.aten.pow.Tensor_Scalar:
+    size_latency:
+      1000: 9.900000e-09
+      1000000: 9.900000e-06
+  torch._ops.aten.mean.dim:
+    size_latency:
+      1000: 3.300000e-09
+      1000000: 3.300000e-06
+  torch._ops.aten.add.Tensor:
+    size_latency:
+      1000: 2.910000e-08
+      1000000: 2.910000e-05
+  torch._ops.aten.rsqrt.default:
+    size_latency:
+      1000: 3.300000e-09
+      1000000: 3.300000e-06
+  torch._ops.aten.detach.default:
+    size_latency:
+      1000: 3.920000e-08
+      1000000: 3.920000e-05
+  torch._ops.aten.linear.default:
+    size_latency:
+      1000: 1.130000e-08
+      1000000: 1.130000e-05
+  torch._ops.aten.neg.default:
+    size_latency:
+      1000: 6.400000e-09
+      1000000: 6.400000e-06
+  torch._ops.aten.clone.default:
+    size_latency:
+      1000: 1.120000e-08
+      1000000: 1.120000e-05
+  torch._ops.aten.mul.Scalar:
+    size_latency:
+      1000: 1.300000e-08
+      1000000: 1.300000e-05
+  torch._ops.aten.ones.default:
+    size_latency:
+      1000: 1.600000e-09
+      1000000: 1.600000e-06
+  torch._ops.aten.tril.default:
+    size_latency:
+      1000: 1.600000e-09
+      1000000: 1.600000e-06
+  torch._ops.aten.scalar_tensor.default:
+    size_latency:
+      1000: 3.200000e-09
+      1000000: 3.200000e-06
+  torch._ops.aten.where.self:
+    size_latency:
+      1000: 1.600000e-09
+      1000000: 1.600000e-06
+  torch._ops.aten._safe_softmax.default:
+    size_latency:
+      1000: 1.600000e-09
+      1000000: 1.600000e-06
+  torch._ops.aten.silu.default:
+    size_latency:
+      1000: 1.600000e-09
+      1000000: 1.600000e-06
+  torch._ops.aten._log_softmax.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten.nll_loss_forward.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.profiler._record_function_enter_new.default:
+    size_latency:
+      1000: 2.000000e-10
+      1000000: 2.000000e-07
+  torch._ops.profiler._record_function_exit._RecordFunction:
+    size_latency:
+      1000: 2.000000e-10
+      1000000: 2.000000e-07
+  torch._ops.aten.ones_like.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten.nll_loss_backward.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten._log_softmax_backward_data.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten.slice_backward.default:
+    size_latency:
+      1000: 1.970000e-08
+      1000000: 1.970000e-05
+  torch._ops.aten.linear_backward.default:
+    size_latency:
+      1000: 1.130000e-08
+      1000000: 1.130000e-05
+  torch._ops.aten.sum.dim_IntList:
+    size_latency:
+      1000: 9.800000e-09
+      1000000: 9.800000e-06
+  torch._ops.aten.div.Scalar:
+    size_latency:
+      1000: 3.300000e-09
+      1000000: 3.300000e-06
+  torch._ops.aten.silu_backward.default:
+    size_latency:
+      1000: 1.600000e-09
+      1000000: 1.600000e-06
+  torch._ops.aten._softmax_backward_data.default:
+    size_latency:
+      1000: 1.600000e-09
+      1000000: 1.600000e-06
+  torch._ops.aten.squeeze.dim:
+    size_latency:
+      1000: 3.200000e-09
+      1000000: 3.200000e-06
+  torch._ops.aten.embedding_dense_backward.default:
+    size_latency:
+      1000: 1.000000e-10
+      1000000: 1.000000e-07
+  torch._ops.aten.lift_fresh.default:
+    size_latency:
+      1000: 1.460000e-08
+      1000000: 1.460000e-05
+  torch._ops.aten.zeros_like.default:
+    size_latency:
+      1000: 2.920000e-08
+      1000000: 2.920000e-05
+  torch._ops.aten.add_.Tensor:
+    size_latency:
+      1000: 2.920000e-08
+      1000000: 2.920000e-05
+  torch._ops.aten.mul_.Tensor:
+    size_latency:
+      1000: 2.920000e-08
+      1000000: 2.920000e-05
+  torch._ops.aten.lerp_.Scalar:
+    size_latency:
+      1000: 1.460000e-08
+      1000000: 1.460000e-05
+  torch._ops.aten.addcmul_.default:
+    size_latency:
+      1000: 1.460000e-08
+      1000000: 1.460000e-05
+  torch._ops.aten._local_scalar_dense.default:
+    size_latency:
+      1000: 1.460000e-08
+      1000000: 1.460000e-05
+  torch._ops.aten.sqrt.default:
+    size_latency:
+      1000: 1.460000e-08
+      1000000: 1.460000e-05
+  torch._ops.aten.div.Tensor:
+    size_latency:
+      1000: 1.460000e-08
+      1000000: 1.460000e-05
+  torch._ops.aten.addcdiv_.default:
+    size_latency:
+      1000: 1.460000e-08
+      1000000: 1.460000e-05
